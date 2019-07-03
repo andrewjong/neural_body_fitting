@@ -65,6 +65,7 @@ class Model():
                 predictions = refinenet_decoder(feature_maps, num_classes=config['num_classes'], is_training=False)
                 predictions = tf.image.resize_images(predictions, [config['input_size'], config['input_size']],
                                                      method=tf.image.ResizeMethod.BILINEAR)
+                labels = tf.argmax(predictions, axis=-1)
                 inputs = tf.py_func(self.apply_colourmap, [predictions], tf.float32) * 2. / 255. - 1.
                 inputs.set_shape((predictions.shape[0], self.interm_size, self.interm_size, 3))
             
@@ -92,6 +93,7 @@ class Model():
         self.outputs['joints3D'] = joints3D
         self.outputs['joints2D'] = joints2D
         self.outputs['intermediate_rep'] = inputs
+        self.outputs['intermediate_labels'] = labels
 
         return
 

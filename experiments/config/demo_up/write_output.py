@@ -105,6 +105,8 @@ def save_images(fetches, image_dir, mode, config, latent_mean, step=None, batch=
 
     part_colours = np.squeeze(sm.imread(config['colour_map']))
 
+    out_dir = image_dir
+
     image_dir = path.join(image_dir, 'images')
     if not path.exists(image_dir):
         os.makedirs(image_dir)
@@ -136,10 +138,13 @@ def save_images(fetches, image_dir, mode, config, latent_mean, step=None, batch=
         
         #TODO: overlays + rendering should be moved into summaries function        
         segmentation = fetches["intermediate_rep"][im_idx]
-        blend_indices = np.where(np.all(segmentation==0, axis=2))
-        segmentation[blend_indices] = fetches["input"][im_idx][blend_indices]
+        # blend_indices = np.where(np.all(segmentation==0, axis=2))
+        # segmentation[blend_indices] = fetches["input"][im_idx][blend_indices]
         row_info["intermediate"] = (segmentation, 'image')
-       
+
+
+        extract_roi_each_label(fetches["intermediate_labels"][im_idx], name, os.path.join(out_dir, config["rois_file"]))
+
         if mode not in ['infer_fit', 'infer_segment_fit']:
             row_info["body"] = (get_body_dict(fetches["latent"][im_idx], fetches["latent_target"][im_idx], latent_mean, config, kintree), 'plain')
             row_info["latent_sqerr"] = (fetches["latent_sqerr"][im_idx], 'plain')
@@ -178,3 +183,42 @@ def save_images(fetches, image_dir, mode, config, latent_mean, step=None, batch=
                      batch * batch_size + im_idx + 1)
     index_fp = append_index(row_infos, image_dir, mode)
     return index_fp
+
+def extract_roi_each_label(img, name, outfile, num_labels=13):
+    """
+    For each of the labels, extract ROI for that label.
+    Label 0 is assumed to be the background.
+    :param img:
+    :param name:
+    :param outfile:
+    :param num_labels: number of labels, excluding the background
+    :return:
+    """
+    with open(outfile, "a") as f:
+        # start from 1, because 0 is background / not considered
+        for i in range(1, num_labels):
+            y = img.copy()
+            y[y != i] = 0
+            coordinates = extract_roi_1_channel(y)
+            coordinates = [str(i) for i in coordinates]
+            line = ",".join(coordinates) + "\n"
+            line = name + "," + line
+            f.write(line)
+
+# credit https://stackoverflow.com/questions/31400769/bounding-box-of-numpy-array
+def extract_roi_1_channel(img):
+    """
+    Extracts ROI bounding box
+    :param img:
+    :return:
+    """
+    img = np.squeeze(img)
+    rows = np.any(img, axis=1)
+    cols = np.any(img, axis=0)
+    if np.any(rows) and np.any(cols):
+        ymin, ymax = np.where(rows)[0][[0, -1]]
+        xmin, xmax = np.where(cols)[0][[0, -1]]
+        return xmin, ymin, xmax, ymax
+    else:
+        return None, None, None, None
+

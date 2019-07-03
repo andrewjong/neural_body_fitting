@@ -294,7 +294,7 @@ def cli(**args):
 
     #### SETUP SESSION ####
     sess_config = tf.ConfigProto(log_device_placement=False)
-    sess_config.gpu_options.allow_growth = False
+    sess_config.gpu_options.allow_growth = True
     prepared_session = tf.Session(config=sess_config)
 
     epoch = 0
