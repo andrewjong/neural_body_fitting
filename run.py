@@ -585,6 +585,10 @@ def cli(**args):
         LOGGER.info("Shutting down...")
     LOGGER.info("Done.")
 
+def write_header(rois_file):
+    with open(rois_file, "w") as f:
+        f.write("id,x1,y1,x2,y2\n")
+
 
 if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO, format=LOGFORMAT)

@@ -92,10 +92,9 @@ class Model():
         self.outputs['joints3D_prepose'] = joints3D_prepose
         self.outputs['joints3D'] = joints3D
         self.outputs['joints2D'] = joints2D
-        self.outputs['intermediate_rep'] = inputs
         self.outputs['intermediate_labels'] = labels
+        self.outputs['intermediate_rep'] = inputs
 
-        return
 
     #TODO: these two functions need to go somewhere else
     def get_colourmap(self, config):

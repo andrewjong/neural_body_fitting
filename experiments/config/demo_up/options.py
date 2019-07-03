@@ -1,4 +1,5 @@
 config = {
+    "rois_file": "rois.csv",
     # Model. #######################
     # Supported are: 'vgg', 'resnet50v1', 'resnet50v2'
     "encoder_type": 'resnet50v1',
@@ -17,8 +18,8 @@ config = {
     # Output data properties:
     "num_landmarks": 24,
     # Scale the images if necessary.
-    "input_size": 512,
-    "interm_size": 224,
+    "input_size": 128,
+    "interm_size": 128,
     # Misc. settings:
     "smplparams_mean": "helper_data/stats/train_mean.npy",
     "smplparams_std": "helper_data/stats/train_std.npy",

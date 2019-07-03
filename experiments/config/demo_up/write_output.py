@@ -134,7 +134,7 @@ def save_images(fetches, image_dir, mode, config, latent_mean, step=None, batch=
         row_info["latent"] = (fetches["latent"][im_idx], 'plain')
         row_info["joints2d_pred"] = (fetches["joints2d_pred"][im_idx], 'plain')
         row_info["joints3d_pred"] = (fetches["joints3d_pred"][im_idx], 'plain')
-        row_info["input"] = (fetches["input"][im_idx], 'image')
+        # row_info["input"] = (fetches["input"][im_idx], 'image')
         
         #TODO: overlays + rendering should be moved into summaries function        
         segmentation = fetches["intermediate_rep"][im_idx]

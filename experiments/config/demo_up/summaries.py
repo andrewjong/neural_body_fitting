@@ -54,6 +54,7 @@ def create_summaries(mode, config, examples, outputs, losses, track_scalars, tra
                                            #       dtype=tf.string,
                                            #       name=name+'_pngs') 
 
+    display_fetches["intermediate_labels"] = outputs["intermediate_labels"]
     #display_fetches['input'] = tf.cast(examples.crop + _IMAGENET_MEAN, tf.uint8)
     display_fetches['paths'] = examples.path
     display_fetches['latent'] = outputs['latent']
