@@ -3,6 +3,7 @@
 ![example_output](/demo/up/examples.png)
 
 ## Setup:
+* Requires Python 2.7
 * `git clone --recursive http://github.com/mohomran/neural_body_fitting`
 * create and activate a fresh virtualenv
 * `pip install tensorflow-gpu==1.6.0` (or `tensorflow==1.6.0`)
@@ -24,8 +25,17 @@ python run.py infer_segment_fit experiments/config/demo_up/ \
 
 The results can be viewed by opening the file `demo/up/output/index.html` in a browser. These were selected to demonstrate both success and failure cases. Most of the processing time (~80%) is taken up by the mesh renderer. Alternatively, you can use ```--visualise pose``` which is quicker and just plots the projected SMPL joints.
 
-## Training:
-Coming Soon
+## How to run for me
+1) Make sure input images are 512x512. If they're not, scale them up. This model CANNOT do 128x128.
+
+2) If the input directory has subfolders, flatten the directory. This can be done by replacing all "/" with "+" temporarily.
+
+3) Specify output size in experiments/config/demo_up/options.py, input size and intermediate size.
+
+4) Run `python run.py infer_segment_fit experiments/config/demo_up/ --inp_fp path/to/input --out_fp path/to/output`
+
+5) If subfolders, replace all "+" back to "/"
+
 
 ## Citation
 If you find any parts of this code useful, please cite the following [paper](https://arxiv.org/abs/1808.05942):

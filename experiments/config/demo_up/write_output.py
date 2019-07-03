@@ -21,7 +21,7 @@ _PATH_TO_MESH = 'models/smpl/template-bodyparts-corrected-labeled-split12.ply'
 
 LOGGER = logging.getLogger(__name__)
 
-def append_index(row_infos, image_dir, mode):
+def append_index(row_infos, image_dir, mode, config):
     """Append or create the presentation html file for the images."""
     index_path = path.join(path.dirname(image_dir), "index.html")
     if path.exists(index_path):
@@ -40,8 +40,10 @@ def append_index(row_infos, image_dir, mode):
             if colt == 'text':
                 index.write("<td>%s</td>" % (colc))
             elif colt == 'image':
-                filename = path.join(image_dir,
-                                     row_info['name'][0] + '_' + coln + '.png')
+                filename = path.join(image_dir, row_info['name'][0])
+                if coln != "intermediate":
+                    filename += "_coln"
+                filename += config["filetype"]
                 if isinstance(colc, str):
                     with open(filename, 'w') as outf:
                         outf.write(colc)
@@ -127,8 +129,8 @@ def save_images(fetches, image_dir, mode, config, latent_mean, step=None, batch=
         if step is not None:
             name = str(step) + '_' + name
         row_info["name"] = (name, 'text')
-        if 'inputs' in fetches.keys():
-            row_info["inputs"] = (fetches['inputs'][im_idx], 'image')
+        # if 'inputs' in fetches.keys():
+        #     row_info["inputs"] = (fetches['inputs'][im_idx], 'image')
 
         #TODO: not loosely coupled enough from summaries.py
         row_info["latent"] = (fetches["latent"][im_idx], 'plain')
@@ -153,7 +155,7 @@ def save_images(fetches, image_dir, mode, config, latent_mean, step=None, batch=
         else:
             row_info["body"] = (get_body_dict(fetches["latent"][im_idx], None, latent_mean, config, kintree), 'plain')
 
-        crop_size = 224
+        crop_size = config["input_size"]
         if visualise == 'render':
             stored_parameters = row_info["body"][0]
             #TODO: move literals elsewhere
@@ -181,7 +183,7 @@ def save_images(fetches, image_dir, mode, config, latent_mean, step=None, batch=
         row_infos.append(row_info)
         LOGGER.debug("Processed image %d.",
                      batch * batch_size + im_idx + 1)
-    index_fp = append_index(row_infos, image_dir, mode)
+    index_fp = append_index(row_infos, image_dir, mode, config)
     return index_fp
 
 def extract_roi_each_label(img, name, outfile, num_labels=13):

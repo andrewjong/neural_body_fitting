@@ -1,5 +1,6 @@
 #!/usr/bin/env python2
 """Main control for the experiments."""
+import sys
 import ast
 import glob
 import imp
@@ -173,6 +174,12 @@ def cli(**args):
         args['ignore_batchnorm_stats'] is not None)
     exp_config['inp_fp'] = args['inp_fp']
     exp_config['out_fp'] = args['out_fp']
+
+
+    _, filetype = os.path.splitext(os.listdir(exp_config["inp_fp"])[0])
+    exp_config["filetype"] = filetype
+
+
     # print all options
     LOGGER.info("Configuration:")
     for key, val in exp_config.items():
@@ -180,6 +187,23 @@ def cli(**args):
     # set random seed
     random.seed(exp_config["seed"])
     tf.set_random_seed(exp_config["seed"])
+
+
+    # write the header
+    rois_file = os.path.join(args["out_fp"], "rois.csv")
+    if os.path.isfile(rois_file):
+        print("The rois file %s already exists..." % rois_file)
+        ans = None
+        while all(ans != choice for choice in ("a", "o", "q")):
+            ans = raw_input("Do you want to (a)ppend, (o)verwrite, or (q)uit? ").strip().lower()
+        if ans == "o":
+            print("Overwriting existing rois file...")
+            write_header(rois_file)
+        elif ans == "q":
+            sys.exit(1)
+    else:
+        write_header(rois_file)
+
 
     #### SETUP INPUT PIPELINE ####
     # load data mean/std

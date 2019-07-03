@@ -63,23 +63,34 @@ class Preprocessor():
         self.data_list = self.get_data_list(config)
         self.data_list_ph = tf.placeholder(tf.string, 
                                            shape=[len(self.data_list), len(self.data_list[0][0])])
-        read_png = lambda x: tf.image.decode_png(tf.read_file(x))[:,:,:3]
+
+        if config["filetype"] == ".png":
+            print("Using decode png")
+            decode_image = tf.image.decode_png
+        elif config["filetype"] == ".jpg":
+            print("Using decode jpg")
+            decode_image = tf.image.decode_jpeg
+        else:
+            print("Guessing decode image")
+            decode_image = tf.image.decode_image
+
+        read_image = lambda x: decode_image(tf.read_file(x))[:,:,:3]
         read_bin = lambda x: tf.decode_raw(tf.read_file(x), tf.float64)
         if self.mode in ['infer_segment_fit']:
             read_func = lambda x: DataRawInfer(
                                     path=x[0],
-                                    crop=read_png(x[1]),
+                                    crop=read_image(x[1]),
                                     intermediate_rep=tf.zeros((self.interm_size, self.interm_size, 3)))
         elif self.mode in ['infer_fit']:
             read_func = lambda x: DataRawInfer(
                                     path=x[0],
                                     crop=tf.zeros((self.input_size, self.input_size, 3)),
-                                    intermediate_rep=read_png(x[2]))
+                                    intermediate_rep=read_image(x[2]))
         else:
             read_func = lambda x: DataRaw(
                                     path=x[0],
                                     crop=tf.zeros((self.input_size, self.input_size, 3)),
-                                    intermediate_rep=read_png(x[2]),
+                                    intermediate_rep=read_image(x[2]),
                                     smplparams=read_bin(x[3]),
                                     joints=read_bin(x[4]),
                                     latent_flag=x[5])
@@ -197,10 +208,11 @@ class Preprocessor():
                                    str(f[1])) for f in f_grp])
         
         elif mode in ['infer_fit', 'infer_segment_fit']:
-            inp_files = sorted(glob.glob(os.path.join(config['inp_fp'], '*.png')))
-            fids = [os.path.basename(ifl).split('.png')[0] for ifl in inp_files]
+            inp_files = sorted(glob.glob(os.path.join(config['inp_fp'], '*' + config["filetype"])))
+            # inp_files = [f for f in inp_files if any(option in f for option in ("additional", "full"))]
+            fids = [os.path.basename(ifl).split(config["filetype"])[0] for ifl in inp_files]
             data_list = [[(f, 
-                           os.path.join(config['inp_fp'], f + '.png'))]
+                           os.path.join(config['inp_fp'], f + config["filetype"]))]
                          for f in fids]
         return data_list
         
