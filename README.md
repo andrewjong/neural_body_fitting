@@ -25,8 +25,8 @@ python run.py infer_segment_fit experiments/config/demo_up/ \
 
 The results can be viewed by opening the file `demo/up/output/index.html` in a browser. These were selected to demonstrate both success and failure cases. Most of the processing time (~80%) is taken up by the mesh renderer. Alternatively, you can use ```--visualise pose``` which is quicker and just plots the projected SMPL joints.
 
-## How to run for me
-1) Make sure input images are 512x512. If they're not, scale them up. This model CANNOT do 128x128.
+## How to run for SwapNet
+1) Make sure input images are 512x512. If they're not, scale them up. The model in this repository CANNOT do 128x128.
 
 2) If the input directory has subfolders, flatten the directory. This can be done by replacing all "/" with "+" temporarily.
 
